@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071a33" />
+  <meta name="description" content="Open Explorer — a polished, privacy-aware browser workspace for everyone." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <style>
+:root {
+  --bg: #f4f7fb;
+  --surface: rgba(255,255,255,.92);
+  --surface-2: #ffffff;
+  --text: #0b1b2f;
+  --muted: #637083;
+  --line: #dfe6ef;
+  --navy: #071a33;
+  --blue: #1c69ff;
+  --blue-2: #0f4fd6;
+  --shadow: 0 18px 50px rgba(17,38,75,.10);
+}
+
+[data-theme="dark"] {
+  --bg: #07111f;
+  --surface: rgba(13,26,44,.94);
+  --surface-2: #0e1d30;
+  --text: #eef4ff;
+  --muted: #9baac0;
+  --line: #26384f;
+  --navy: #eef4ff;
+  --blue: #66a2ff;
+  --blue-2: #8bb8ff;
+  --shadow: 0 18px 50px rgba(0,0,0,.3);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(28,105,255,.14), transparent 28%),
+    radial-gradient(circle at 90% 5%, rgba(56,189,248,.12), transparent 25%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 14px clamp(16px, 3vw, 34px);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  backdrop-filter: blur(18px);
+  position: sticky; top: 0; z-index: 30;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center;
+  background: linear-gradient(145deg, #0d2d59, #1c69ff); color: #fff; font-weight: 900; font-size: 1.25rem;
+  box-shadow: 0 10px 26px rgba(28,105,255,.25);
+}
+.brand strong { display:block; letter-spacing:.06em; font-size:.95rem; }
+.brand span { display:block; color:var(--muted); font-size:.75rem; margin-top:2px; }
+.top-actions { display:flex; gap:8px; align-items:center; }
+.button, .icon-button, .go-button, .text-button, .new-tab {
+  border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 12px;
+  min-height: 42px; padding: 0 14px; transition: .18s ease;
+}
+.button:hover, .icon-button:hover, .new-tab:hover, .go-button:hover { transform: translateY(-1px); border-color: #afbed2; }
+.button.primary, .go-button { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 700; }
+.icon-button { width:42px; padding:0; font-size:1.1rem; display:grid; place-items:center; }
+.text-button { border:0; background:transparent; color:var(--blue); min-height:auto; padding:6px 0; }
+.tab-strip {
+  display:flex; gap:8px; align-items:end; padding: 9px clamp(16px,3vw,34px) 0;
+  background: var(--surface); border-bottom:1px solid var(--line);
+}
+.tabs { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab {
+  min-width: 170px; max-width: 220px; display:flex; align-items:center; gap:8px;
+  padding: 9px 10px; border:1px solid var(--line); border-bottom:0; border-radius:12px 12px 0 0;
+  background: transparent; color:var(--muted);
+}
+.tab.active { background:var(--surface-2); color:var(--text); }
+.tab-label { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+.tab-close { border:0; background:transparent; color:inherit; padding:0 2px; font-size:1rem; }
+.new-tab { border-radius:10px 10px 0 0; border-bottom:0; min-height:38px; }
+.toolbar {
+  display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:9px;
+  padding: 12px clamp(16px,3vw,34px); background:var(--surface-2); border-bottom:1px solid var(--line);
+  position:sticky; top:71px; z-index:25;
+}
+.nav-buttons { display:flex; gap:6px; }
+.address-form {
+  display:flex; align-items:center; gap:9px; background:var(--bg); border:1px solid var(--line); border-radius:15px;
+  padding-left:13px; min-width:0;
+}
+.address-form:focus-within { border-color:var(--blue); box-shadow:0 0 0 3px rgba(28,105,255,.10); }
+.secure-dot { width:8px; height:8px; background:#22c55e; border-radius:50%; flex:0 0 auto; }
+.address-form input { flex:1; min-width:0; border:0; outline:0; background:transparent; color:var(--text); padding:12px 0; }
+.go-button { border-radius:0 14px 14px 0; min-height:46px; }
+.main-view { width:min(1180px, calc(100% - 32px)); margin: 26px auto 50px; display:grid; gap:24px; }
+.hero-card {
+  border:1px solid var(--line); border-radius:30px; padding:clamp(28px,5vw,62px);
+  background: linear-gradient(135deg, rgba(7,26,51,.98), rgba(16,66,145,.96)); color:#fff;
+  box-shadow:var(--shadow); overflow:hidden; position:relative;
+}
+.hero-card:after { content:""; position:absolute; width:320px; height:320px; border-radius:50%; background:rgba(255,255,255,.08); right:-90px; top:-120px; }
+.hero-card h1 { margin:.3rem 0 .8rem; font-size:clamp(2.15rem,5vw,4.4rem); line-height:.98; max-width:800px; letter-spacing:-.04em; }
+.hero-card p { max-width:760px; color:rgba(255,255,255,.78); font-size:1.03rem; }
+.eyebrow { font-size:.72rem !important; letter-spacing:.15em; font-weight:800; margin:0; color:var(--blue-2); }
+.hero-card .eyebrow { color:#8fc2ff; }
+.hero-search { display:flex; gap:10px; margin-top:26px; max-width:820px; }
+.hero-search input { flex:1; min-width:0; padding:16px 18px; border-radius:14px; border:1px solid rgba(255,255,255,.25); outline:0; background:rgba(255,255,255,.98); color:#0b1b2f; }
+.privacy-note { font-size:.8rem !important; margin-top:10px; }
+.section-heading { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:12px; }
+.section-heading.compact { align-items:center; }
+.section-heading h2, .panel h2, .safety-card h2 { margin:.25rem 0 0; font-size:1.35rem; }
+.grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; }
+.quick-card {
+  text-align:left; border:1px solid var(--line); background:var(--surface-2); border-radius:20px; padding:18px;
+  color:var(--text); min-height:140px; box-shadow:0 8px 20px rgba(17,38,75,.05); display:flex; flex-direction:column; justify-content:space-between;
+}
+.quick-card:hover { transform:translateY(-2px); border-color:#a9bdd6; box-shadow:var(--shadow); }
+.quick-icon { width:42px; height:42px; border-radius:13px; display:grid; place-items:center; background:rgba(28,105,255,.10); color:var(--blue); font-weight:900; }
+.quick-card strong { display:block; margin-top:18px; }
+.quick-card span { display:block; color:var(--muted); font-size:.82rem; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dashboard-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.panel, .safety-card { border:1px solid var(--line); background:var(--surface); border-radius:22px; padding:20px; box-shadow:0 10px 25px rgba(17,38,75,.04); }
+.list { display:grid; gap:8px; }
+.list-item { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; padding:12px 13px; border:1px solid var(--line); border-radius:13px; background:var(--surface-2); }
+.list-item button { border:0; background:transparent; color:var(--text); text-align:left; min-width:0; }
+.list-item strong, .list-item span { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.list-item span { color:var(--muted); font-size:.78rem; margin-top:2px; }
+.item-actions { display:flex; gap:4px; }
+.item-actions .mini { width:30px; height:30px; border:1px solid var(--line); border-radius:8px; text-align:center; }
+.empty-state { color:var(--muted); padding:22px 4px; }
+.safety-card { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.safety-card p:not(.eyebrow) { color:var(--muted); margin-bottom:0; max-width:850px; }
+.switch { position:relative; width:54px; height:30px; flex:0 0 auto; }
+.switch input { display:none; }
+.slider { position:absolute; inset:0; border-radius:999px; background:#b8c2cf; transition:.2s; }
+.slider:after { content:""; position:absolute; width:24px; height:24px; left:3px; top:3px; border-radius:50%; background:#fff; transition:.2s; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+.switch input:checked + .slider { background:var(--blue); }
+.switch input:checked + .slider:after { transform:translateX(24px); }
+footer { margin-top:auto; border-top:1px solid var(--line); padding:20px clamp(16px,3vw,34px); color:var(--muted); display:flex; justify-content:space-between; gap:12px; font-size:.82rem; }
+.toast { position:fixed; left:50%; bottom:26px; transform:translate(-50%,18px); background:#071a33; color:#fff; padding:11px 16px; border-radius:11px; opacity:0; pointer-events:none; transition:.2s; z-index:100; box-shadow:var(--shadow); }
+.toast.show { opacity:1; transform:translate(-50%,0); }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .toolbar { grid-template-columns:auto 1fr auto; }
+  #openExternalBtn { display:none; }
+  .dashboard-grid { grid-template-columns:1fr; }
+}
+@media (max-width: 620px) {
+  .brand span { display:none; }
+  .brand strong { font-size:.82rem; }
+  .topbar { padding:10px 12px; }
+  .toolbar { top:63px; grid-template-columns:1fr auto; padding:10px 12px; }
+  .nav-buttons { grid-column:1 / -1; order:2; }
+  .address-form { order:1; }
+  #bookmarkCurrentBtn { order:1; }
+  .tab-strip { padding-left:12px; padding-right:12px; }
+  .main-view { width:min(100% - 20px, 1180px); margin-top:16px; }
+  .hero-card { border-radius:22px; padding:26px 20px; }
+  .hero-search { flex-direction:column; }
+  .grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .quick-card { padding:14px; min-height:125px; }
+  .safety-card { align-items:flex-start; }
+  footer { flex-direction:column; padding:18px 12px; }
+}
+
+.sidebar-toggle{display:none}.browser-layout{display:grid;grid-template-columns:250px 1fr;min-height:0;flex:1}.sidebar{border-right:1px solid var(--line);background:var(--surface);padding:18px 12px;position:sticky;top:162px;height:calc(100vh - 162px);overflow:auto}.side-title{padding:8px 10px;color:var(--muted);font-size:.7rem;font-weight:800;letter-spacing:.12em}.side-nav{display:grid;gap:5px}.side-btn{border:0;background:transparent;color:var(--text);padding:11px 12px;border-radius:11px;text-align:left;display:flex;gap:10px;align-items:center}.side-btn:hover,.side-btn.active{background:rgba(28,105,255,.1);color:var(--blue)}.side-btn span:first-child{width:22px;text-align:center}.content-wrap{min-width:0}.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.feature-card{border:1px solid var(--line);background:var(--surface-2);border-radius:18px;padding:18px;min-height:150px}.feature-card h3{margin:10px 0 6px}.feature-card p{color:var(--muted);font-size:.86rem}.feature-card .button{margin-top:8px}.search-controls{display:flex;gap:8px;align-items:center;margin-top:12px}.select{border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:10px;padding:9px 10px}.tool-panel{display:none}.tool-panel.active{display:block}.tool-page{width:min(1180px,calc(100% - 32px));margin:24px auto 50px}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.setting-row{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}.setting-row p{margin:3px 0 0;color:var(--muted);font-size:.82rem}.notes-area{width:100%;min-height:260px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--text);padding:14px;resize:vertical}.reading-list{display:grid;gap:9px}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{border:1px solid var(--line);border-radius:16px;background:var(--surface-2);padding:16px}.stat strong{display:block;font-size:1.5rem}.stat span{color:var(--muted);font-size:.8rem}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:999px;padding:8px 12px}.chip:hover{border-color:var(--blue);color:var(--blue)}.private-badge{display:none;color:#fff;background:#7c3aed;border-radius:999px;padding:5px 10px;font-size:.7rem;font-weight:800}.private-badge.show{display:inline-flex}.brand-mark{overflow:hidden;background:#fff}.brand-mark img{width:100%;height:100%;object-fit:cover}.modal-backdrop{position:fixed;inset:0;background:rgba(3,10,20,.55);display:none;place-items:center;z-index:200;padding:18px}.modal-backdrop.show{display:grid}.modal{width:min(620px,100%);max-height:85vh;overflow:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}.modal h2{margin-top:0}.shortcut-grid{display:grid;grid-template-columns:1fr auto;gap:8px 16px}.kbd{border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:3px 7px;font-size:.78rem}.address-status{font-size:.74rem;color:var(--muted);padding:0 4px}.utility-row{display:flex;gap:8px;flex-wrap:wrap}.danger{color:#b42318;border-color:#f3b8b0}.danger:hover{background:#fff3f1}.panel-actions{display:flex;gap:8px;flex-wrap:wrap}.info-banner{border:1px solid rgba(28,105,255,.25);background:rgba(28,105,255,.07);border-radius:16px;padding:14px 16px;color:var(--muted);font-size:.86rem}.info-banner strong{color:var(--text)}
+@media(max-width:1000px){.browser-layout{grid-template-columns:1fr}.sidebar{display:none}.sidebar.open{display:block;position:fixed;left:0;top:0;z-index:150;width:280px;height:100vh;box-shadow:var(--shadow)}.sidebar-toggle{display:grid}.feature-grid{grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.feature-grid,.settings-grid{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr 1fr}.search-controls{align-items:stretch;flex-direction:column}.tool-page{width:min(100% - 20px,1180px)}}
+
+
+/* v1.4 professional browser upgrades */
+.workspace-bar{display:flex;align-items:center;gap:8px;padding:8px clamp(16px,3vw,34px);border-bottom:1px solid var(--line);background:var(--surface);overflow:auto}.workspace-chip{border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:999px;padding:7px 12px;white-space:nowrap}.workspace-chip.active{background:rgba(28,105,255,.11);border-color:rgba(28,105,255,.35);color:var(--blue);font-weight:800}.workspace-add{border:0;background:transparent;color:var(--blue);font-weight:800;white-space:nowrap}.tab-pinned{min-width:72px;max-width:120px}.tab-pin{border:0;background:transparent;color:inherit;padding:0 2px}.tab.sleeping{opacity:.58}.pro-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:rgba(28,105,255,.10);color:var(--blue);font-size:.7rem;font-weight:800}.command-backdrop{position:fixed;inset:0;background:rgba(2,9,18,.55);display:none;align-items:flex-start;justify-content:center;z-index:300;padding-top:min(14vh,120px)}.command-backdrop.show{display:flex}.command-box{width:min(720px,calc(100% - 28px));background:var(--surface-2);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.28);overflow:hidden}.command-input{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);padding:19px 20px;font-size:1rem;outline:0}.command-list{max-height:420px;overflow:auto;padding:8px}.command-item{width:100%;border:0;background:transparent;color:var(--text);border-radius:12px;padding:12px;text-align:left;display:flex;justify-content:space-between;gap:16px}.command-item:hover,.command-item.active{background:rgba(28,105,255,.09)}.command-item small{color:var(--muted)}.form-grid{display:grid;grid-template-columns:1fr auto;gap:10px}.input{width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:12px;padding:11px 12px;outline:0}.input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,105,255,.08)}.cards-list{display:grid;gap:10px}.management-card{border:1px solid var(--line);background:var(--surface-2);border-radius:16px;padding:15px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.management-card p{margin:4px 0 0;color:var(--muted);font-size:.82rem}.management-actions{display:flex;gap:6px;flex-wrap:wrap}.mini-button{border:1px solid var(--line);background:var(--surface-2);color:var(--text);border-radius:9px;padding:7px 9px}.mini-button:hover{border-color:var(--blue);color:var(--blue)}.toolbar-more{display:flex;gap:6px}.top-actions .pro-only{display:inline-grid}.privacy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.privacy-meter{border:1px solid var(--line);border-radius:16px;background:var(--surface-2);padding:16px}.privacy-meter strong{display:block;font-size:1.15rem}.privacy-meter span{display:block;color:var(--muted);font-size:.8rem;margin-top:4px}.status-good{color:#15803d}.status-warn{color:#b45309}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.focus-mode .sidebar,.focus-mode footer,.focus-mode .workspace-bar{display:none!important}.focus-mode .browser-layout{grid-template-columns:1fr}.focus-mode .main-view,.focus-mode .tool-page{max-width:920px}.vertical-tabs-mode .tab-strip{position:fixed;left:0;top:70px;width:228px;height:calc(100vh - 70px);z-index:80;padding:14px 9px;display:flex;align-items:stretch;flex-direction:column;background:var(--surface-2);border-right:1px solid var(--line);border-bottom:0}.vertical-tabs-mode .tabs{flex-direction:column;overflow:auto}.vertical-tabs-mode .tab{min-width:0;max-width:none;width:100%;border:1px solid var(--line);border-radius:11px;padding:9px}.vertical-tabs-mode .new-tab{border:1px solid var(--line);border-radius:10px}.vertical-tabs-mode .toolbar,.vertical-tabs-mode .workspace-bar,.vertical-tabs-mode .browser-layout,.vertical-tabs-mode footer{margin-left:228px}.vertical-tabs-mode .toolbar{top:70px}.vertical-tabs-mode .sidebar{top:129px;height:calc(100vh - 129px)}.session-note{color:var(--muted);font-size:.8rem;margin-top:8px}.suggestion-box{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);display:none;z-index:120;overflow:hidden}.address-form{position:relative}.suggestion-box.show{display:block}.suggestion-item{width:100%;border:0;background:transparent;color:var(--text);text-align:left;padding:10px 12px;display:block}.suggestion-item:hover{background:rgba(28,105,255,.08)}
+@media(max-width:900px){.privacy-grid{grid-template-columns:1fr}.compare-grid{grid-template-columns:1fr}.vertical-tabs-mode .tab-strip{position:static;width:auto;height:auto;display:flex;flex-direction:row;padding:9px 12px 0;border-right:0;border-bottom:1px solid var(--line)}.vertical-tabs-mode .tabs{flex-direction:row}.vertical-tabs-mode .tab{min-width:170px;max-width:220px;border-bottom:0;border-radius:12px 12px 0 0}.vertical-tabs-mode .new-tab{border-bottom:0;border-radius:10px 10px 0 0}.vertical-tabs-mode .toolbar,.vertical-tabs-mode .workspace-bar,.vertical-tabs-mode .browser-layout,.vertical-tabs-mode footer{margin-left:0}.top-actions .pro-only{display:none}}
+
+
+/* v2 universal visual refresh */
+:root{--accent:#6d5dfc;--accent2:#17c7d9;--glow:rgba(109,93,252,.28)}
+body{background:
+radial-gradient(circle at 12% -10%,rgba(109,93,252,.16),transparent 34%),
+radial-gradient(circle at 88% 0%,rgba(23,199,217,.12),transparent 30%),var(--bg)}
+.topbar{backdrop-filter:blur(22px);background:color-mix(in srgb,var(--surface-2) 86%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.brand-mark{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 28px var(--glow);overflow:hidden}.brand-mark img{width:100%;height:100%;object-fit:cover}.brand strong{letter-spacing:.08em}.brand span{letter-spacing:.02em}
+.button.primary,.go-button{background:linear-gradient(135deg,var(--accent),var(--accent2));border:0;box-shadow:0 8px 24px var(--glow)}
+.address-form{border-radius:18px;background:color-mix(in srgb,var(--surface-2) 88%,transparent);box-shadow:0 10px 35px rgba(0,0,0,.07)}
+.address-form:focus-within{box-shadow:0 0 0 3px rgba(109,93,252,.12),0 12px 40px rgba(0,0,0,.10);border-color:rgba(109,93,252,.45)}
+.hero{border:1px solid color-mix(in srgb,var(--line) 70%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--surface-2) 95%,transparent),color-mix(in srgb,var(--surface) 86%,transparent));box-shadow:0 26px 70px rgba(0,0,0,.08);position:relative;overflow:hidden}.hero:after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;right:-120px;top:-130px;background:radial-gradient(circle,rgba(109,93,252,.25),transparent 65%);pointer-events:none}
+.hero h1{font-size:clamp(2.3rem,6vw,5.2rem);letter-spacing:-.055em;max-width:900px;line-height:.95;background:linear-gradient(135deg,var(--text) 30%,var(--accent) 78%,var(--accent2));-webkit-background-clip:text;color:transparent}
+.quick-card,.feature-card,.panel,.management-card,.privacy-meter,.setting-row{border-color:color-mix(in srgb,var(--line) 72%,transparent);box-shadow:0 12px 34px rgba(0,0,0,.04)}
+.quick-card:hover,.feature-card:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(0,0,0,.09);border-color:rgba(109,93,252,.35)}
+.workspace-chip.active{background:linear-gradient(135deg,rgba(109,93,252,.15),rgba(23,199,217,.12));border-color:rgba(109,93,252,.35);color:var(--accent)}
+.pro-badge{background:linear-gradient(135deg,rgba(109,93,252,.13),rgba(23,199,217,.10));color:var(--accent)}
+.side-btn.active{background:linear-gradient(135deg,rgba(109,93,252,.14),rgba(23,199,217,.09));color:var(--accent)}
+.tab.active{box-shadow:inset 0 -2px 0 var(--accent)}
+::selection{background:rgba(109,93,252,.22)}
+
+</style>
+  <title>Open Browser</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="Open Browser">
+        <div class="brand-mark"><img src="./open-browser-logo.png" alt="Open Browser logo"></div>
+        <div>
+          <strong>OPEN BROWSER</strong>
+          <span>Search. Organize. Explore.</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="privateBadge" class="private-badge">PRIVATE</span>
+        <button id="sidebarToggle" class="icon-button sidebar-toggle" title="Menu" aria-label="Menu">☰</button>
+        <button id="installBtn" class="button primary" hidden>Install App</button>
+        <button id="commandBtn" class="icon-button pro-only" title="Command palette" aria-label="Command palette">⌘</button>
+        <button id="shareBtn" class="icon-button pro-only" title="Share current page" aria-label="Share current page">↗</button>
+        <button id="shortcutsBtn" class="icon-button" title="Keyboard shortcuts" aria-label="Keyboard shortcuts">⌨</button>
+        <button id="themeBtn" class="icon-button" title="Toggle theme" aria-label="Toggle theme">◐</button>
+      </div>
+    </header>
+
+    <section class="tab-strip" aria-label="Browser tabs">
+      <div id="tabs" class="tabs"></div>
+      <button id="newTabBtn" class="new-tab" aria-label="New tab" title="New tab">＋</button>
+    </section>
+
+    <section class="toolbar">
+      <div class="nav-buttons">
+        <button id="backBtn" class="icon-button" title="Back" aria-label="Back">←</button>
+        <button id="forwardBtn" class="icon-button" title="Forward" aria-label="Forward">→</button>
+        <button id="refreshBtn" class="icon-button" title="Refresh" aria-label="Refresh">↻</button>
+        <button id="homeBtn" class="icon-button" title="Home" aria-label="Home">⌂</button>
+      </div>
+      <form id="addressForm" class="address-form">
+        <span class="secure-dot" aria-hidden="true"></span>
+        <input id="addressInput" autocomplete="off" inputmode="url" placeholder="Search or enter web address" aria-label="Search or enter web address" />
+        <button type="submit" class="go-button">Go</button><div id="suggestionBox" class="suggestion-box"></div>
+      </form>
+      <button id="bookmarkCurrentBtn" class="icon-button" title="Bookmark" aria-label="Bookmark">☆</button>
+      <button id="openExternalBtn" class="button">Open Website</button>
+    </section>
+    <section class="workspace-bar" aria-label="Workspaces"><span class="pro-badge">WORKSPACES</span><div id="workspaceChips" style="display:flex;gap:7px"></div><button id="quickAddWorkspace" class="workspace-add">＋ New workspace</button></section>
+
+    <div class="browser-layout">
+      <aside id="sidebar" class="sidebar">
+        <div class="side-title">BROWSER</div>
+        <nav class="side-nav">
+          <button class="side-btn active" data-view="home"><span>⌂</span><span>Home</span></button>
+          <button class="side-btn" data-view="bookmarks"><span>☆</span><span>Bookmarks</span></button>
+          <button class="side-btn" data-view="history"><span>◷</span><span>History</span></button>
+          <button class="side-btn" data-view="reading"><span>▤</span><span>Reading List</span></button>
+          <button class="side-btn" data-view="notes"><span>✎</span><span>Notes</span></button>
+          <button class="side-btn" data-view="collections"><span>▦</span><span>Collections</span></button>
+          <button class="side-btn" data-view="sessions"><span>◫</span><span>Sessions</span></button>
+          <button class="side-btn" data-view="workspaces"><span>◌</span><span>Workspaces</span></button>
+        </nav>
+        <div class="side-title">TOOLS</div>
+        <nav class="side-nav">
+          <button class="side-btn" data-view="quickLinks"><span>◈</span><span>Quick Links</span></button>
+          <button class="side-btn" data-view="privacy"><span>♢</span><span>Privacy Center</span></button>
+          <button class="side-btn" data-view="settings"><span>⚙</span><span>Settings</span></button>
+          <button id="privateModeBtn" class="side-btn"><span>◉</span><span>Private Session</span></button>
+        </nav>
+      </aside>
+      <div class="content-wrap">
+    <main id="homeView" class="main-view tool-panel active">
+      <section class="hero-card">
+        <p class="eyebrow">THE WEB, YOUR WAY</p>
+        <h1>A professional browser workspace for everyone.</h1>
+        <p>Search and launch the web, organize research into workspaces and collections, save sessions, manage tabs, and move quickly across the your favorite sites.</p>
+        <form id="heroSearchForm" class="hero-search">
+          <input id="heroSearchInput" placeholder="Search the web or type a URL" aria-label="Search the web or type a URL" />
+          <button class="button primary" type="submit">Browse</button>
+        </form>
+        <p class="privacy-note">Websites open in their own browser tab/window for compatibility and security.</p>
+      </section>
+
+      <section class="quick-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">QUICK ACCESS</p>
+            <h2>Quick Links</h2>
+          </div>
+        </div>
+        <div id="quickLinksGrid" class="grid"></div>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">SAVED</p>
+              <h2>Bookmarks</h2>
+            </div>
+            <button id="clearBookmarksBtn" class="text-button">Clear</button>
+          </div>
+          <div id="bookmarksList" class="list empty-state">No bookmarks yet.</div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">RECENT</p>
+              <h2>History</h2>
+            </div>
+            <button id="clearHistoryBtn" class="text-button">Clear</button>
+          </div>
+          <div id="historyList" class="list empty-state">No browsing history yet.</div>
+        </article>
+      </section>
+
+      <section class="safety-card">
+        <div>
+          <p class="eyebrow">SEARCH SAFETY</p>
+          <h2>Safe Search Mode</h2>
+          <p>When enabled, Open Browser uses family-friendly search parameters where the selected search engine supports them.</p>
+        </div>
+        <label class="switch">
+          <input id="safeModeToggle" type="checkbox" checked />
+          <span class="slider"></span>
+        </label>
+      </section>
+
+      <section>
+        <div class="section-heading"><div><p class="eyebrow">BROWSE SMARTER</p><h2>Productivity Tools</h2></div></div>
+        <div class="feature-grid">
+          <article class="feature-card"><div class="quick-icon">▤</div><h3>Reading List</h3><p>Save useful pages for later without mixing them with permanent bookmarks.</p><button class="button" id="saveReadingBtn">Save current page</button></article>
+          <article class="feature-card"><div class="quick-icon">✎</div><h3>Focus Notes</h3><p>Keep quick notes while researching. Notes stay on this device.</p><button class="button" data-open-view="notes">Open notes</button></article>
+          <article class="feature-card"><div class="quick-icon">◉</div><h3>Private Session</h3><p>Browse without adding new entries to Open Browser history on this device.</p><button class="button" id="privateModeHomeBtn">Start private session</button></article>
+          <article class="feature-card"><div class="quick-icon">⌘</div><h3>Search Engine</h3><p>Choose Google, Bing, DuckDuckGo or Brave Search for address-bar searches.</p><select id="searchEngineSelect" class="select"><option value="google">Google</option><option value="bing">Bing</option><option value="duck">DuckDuckGo</option><option value="brave">Brave Search</option></select></article>
+          <article class="feature-card"><div class="quick-icon">⌨</div><h3>Keyboard Shortcuts</h3><p>Use Ctrl/⌘+L for the address bar, Ctrl/⌘+T for a new tab, and more.</p><button class="button" id="shortcutsHomeBtn">View shortcuts</button></article>
+          <article class="feature-card"><div class="quick-icon">⚙</div><h3>Privacy & Data</h3><p>Clear history, bookmarks, reading list, notes or all local browser data.</p><button class="button" data-open-view="settings">Browser settings</button></article>
+          <article class="feature-card"><div class="quick-icon">◌</div><h3>Workspaces</h3><p>Separate personal, work, research, creative and other tab sets.</p><button class="button" data-open-view="workspaces">Manage workspaces</button></article>
+          <article class="feature-card"><div class="quick-icon">▦</div><h3>Collections</h3><p>Group useful links into named research or project collections.</p><button class="button" data-open-view="collections">Open collections</button></article>
+          <article class="feature-card"><div class="quick-icon">◫</div><h3>Saved Sessions</h3><p>Save your current tabs and restore the whole browsing session later.</p><button class="button" data-open-view="sessions">Manage sessions</button></article>
+          <article class="feature-card"><div class="quick-icon">⇵</div><h3>Vertical Tabs</h3><p>Switch between classic horizontal tabs and a widescreen-friendly vertical tab rail.</p><button class="button" id="verticalTabsHomeBtn">Toggle vertical tabs</button></article>
+          <article class="feature-card"><div class="quick-icon">↗</div><h3>Share & Translate</h3><p>Share the current link or send it to a translation service in one click.</p><div class="panel-actions"><button class="button" id="shareHomeBtn">Share</button><button class="button" id="translateHomeBtn">Translate</button></div></article>
+          <article class="feature-card"><div class="quick-icon">▣</div><h3>Compare Pages</h3><p>Launch two websites together for research, comparison or review.</p><button class="button" data-open-view="compare">Open compare tool</button></article>
+        </div>
+      </section>
+    </main>
+
+    <main id="bookmarksView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">SAVED</p><h2>All Bookmarks</h2></div><button id="clearBookmarksBtn2" class="button">Clear bookmarks</button></div><div id="bookmarksFull" class="list"></div></section></main>
+    <main id="historyView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">RECENT</p><h2>Browsing History</h2></div><button id="clearHistoryBtn2" class="button">Clear history</button></div><div id="historyFull" class="list"></div></section></main>
+    <main id="readingView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">READ LATER</p><h2>Reading List</h2></div><button id="clearReadingBtn" class="button">Clear list</button></div><div id="readingList" class="reading-list"></div></section></main>
+    <main id="notesView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">QUICK CAPTURE</p><h2>Focus Notes</h2></div><span id="notesStatus" class="address-status">Saved locally</span></div><textarea id="studyNotes" class="notes-area" placeholder="Write notes, ideas, links, snippets, or research points here..."></textarea><div class="panel-actions" style="margin-top:12px"><button id="copyNotesBtn" class="button">Copy notes</button><button id="clearNotesBtn" class="button danger">Clear notes</button></div></section></main>
+    <main id="collectionsView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">ORGANIZE RESEARCH</p><h2>Collections</h2></div></div><div class="form-grid"><input id="collectionNameInput" class="input" placeholder="New collection name"><button id="createCollectionBtn" class="button primary">Create</button></div><div id="collectionsList" class="cards-list" style="margin-top:16px"></div></section></main>
+    <main id="sessionsView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">SAVE YOUR FLOW</p><h2>Saved Sessions</h2></div></div><div class="form-grid"><input id="sessionNameInput" class="input" placeholder="Session name, e.g. AI Research"><button id="saveSessionBtn" class="button primary">Save current tabs</button></div><p class="session-note">Sessions save your tabs and workspace organization on this device.</p><div id="sessionsList" class="cards-list" style="margin-top:16px"></div></section></main>
+    <main id="workspacesView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">CONTEXT MANAGEMENT</p><h2>Workspaces</h2></div></div><div class="form-grid"><input id="workspaceNameInput" class="input" placeholder="Workspace name"><button id="createWorkspaceBtn" class="button primary">Create workspace</button></div><div id="workspacesList" class="cards-list" style="margin-top:16px"></div></section></main>
+    <main id="compareView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">RESEARCH TOOL</p><h2>Compare Two Pages</h2></div></div><div class="compare-grid"><input id="compareA" class="input" placeholder="First URL or search"><input id="compareB" class="input" placeholder="Second URL or search"></div><div class="panel-actions" style="margin-top:12px"><button id="launchCompareBtn" class="button primary">Launch both pages</button></div><div class="info-banner" style="margin-top:16px"><strong>Why separate windows?</strong> Many websites block iframe embedding. Open Browser launches both destinations so your device browser can place them in tabs/windows without breaking site security rules.</div></section></main>
+    <main id="privacyView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">LOCAL PRIVACY</p><h2>Privacy Center</h2></div></div><div class="privacy-grid"><div class="privacy-meter"><strong class="status-good">Safe Search</strong><span id="privacySafeStatus">Enabled</span></div><div class="privacy-meter"><strong class="status-good">Private Session</strong><span id="privacyPrivateStatus">Off</span></div><div class="privacy-meter"><strong>Local Data</strong><span id="privacyDataStatus">Stored only in this browser profile</span></div></div><div class="settings-grid" style="margin-top:16px"><div class="setting-row"><div><strong>Safe Search Mode</strong><p>Use family-friendly search parameters where supported.</p></div><label class="switch"><input id="privacySafeToggle" type="checkbox"><span class="slider"></span></label></div><div class="setting-row"><div><strong>Private Session</strong><p>Stops this app from adding new entries to its local history.</p></div><label class="switch"><input id="privacyPrivateToggle" type="checkbox"><span class="slider"></span></label></div></div><div class="info-banner" style="margin-top:16px"><strong>Important:</strong> Because external sites open in the underlying browser, this web app cannot block their trackers, cookies, downloads or permissions. Those protections remain controlled by Chrome, Edge, Firefox, Safari or the native browser engine.</div><div class="panel-actions" style="margin-top:16px"><button id="exportDataBtnPrivacy" class="button">Export browser data</button><button id="clearHistoryPrivacyBtn" class="button">Clear history</button><button id="clearAllPrivacyBtn" class="button danger">Clear all local data</button></div></section></main>
+    <main id="quickLinksView" class="tool-page tool-panel"><section><div class="section-heading"><div><p class="eyebrow">START HERE</p><h2>Quick Links</h2></div></div><div id="quickLinksGridFull" class="grid"></div></section></main>
+    <main id="settingsView" class="tool-page tool-panel">
+      <section class="panel"><div class="section-heading"><div><p class="eyebrow">CONTROL CENTER</p><h2>Browser Settings</h2></div></div>
+      <div class="stat-grid"><div class="stat"><strong id="statBookmarks">0</strong><span>Bookmarks</span></div><div class="stat"><strong id="statHistory">0</strong><span>History items</span></div><div class="stat"><strong id="statReading">0</strong><span>Reading list</span></div><div class="stat"><strong id="statTabs">1</strong><span>Open tabs</span></div></div>
+      <div class="settings-grid" style="margin-top:16px">
+        <div class="setting-row"><div><strong>Safe Search Mode</strong><p>Use family-friendly search settings where supported.</p></div><label class="switch"><input id="safeModeToggle2" type="checkbox"><span class="slider"></span></label></div>
+        <div class="setting-row"><div><strong>Private Session</strong><p>Do not save new history entries until turned off.</p></div><label class="switch"><input id="privateModeToggle" type="checkbox"><span class="slider"></span></label></div>
+        <div class="setting-row"><div><strong>Search Engine</strong><p>Default provider for address-bar searches.</p></div><select id="searchEngineSelect2" class="select"><option value="google">Google</option><option value="bing">Bing</option><option value="duck">DuckDuckGo</option><option value="brave">Brave Search</option></select></div>
+        <div class="setting-row"><div><strong>Theme</strong><p>Switch between light and dark appearance.</p></div><button id="themeSettingsBtn" class="button">Toggle theme</button></div>
+        <div class="setting-row"><div><strong>Tab layout</strong><p>Use horizontal tabs or vertical tabs on wider screens.</p></div><button id="verticalTabsSettingsBtn" class="button">Toggle layout</button></div>
+        <div class="setting-row"><div><strong>Focus Mode</strong><p>Hide secondary browser chrome for a cleaner focus workspace.</p></div><button id="focusModeBtn" class="button">Toggle focus</button></div>
+        <div class="setting-row"><div><strong>Data portability</strong><p>Export or import bookmarks, history, reading list, workspaces and collections.</p></div><div class="panel-actions"><button id="exportDataBtn" class="button">Export</button><button id="importDataBtn" class="button">Import</button><input id="importDataFile" type="file" accept="application/json" hidden></div></div>
+      </div>
+      <div class="info-banner" style="margin-top:16px"><strong>Web-PWA limitation:</strong> This PWA provides its own browsing dashboard, saved data, tabs and launch controls. External sites may open in separate tabs/windows when they block embedding.</div>
+      <div class="panel-actions" style="margin-top:16px"><button id="clearAllDataBtn" class="button danger">Clear all browser data</button></div>
+      </section>
+    </main>
+      </div>
+    </div>
+
+    <footer>
+      <span>© 2026 Open Browser</span>
+      <span>Private by design · Stored locally</span>
+    </footer>
+  </div>
+
+  <div id="shortcutModal" class="modal-backdrop" role="dialog" aria-modal="true"><div class="modal"><div class="section-heading"><div><p class="eyebrow">POWER USER</p><h2>Keyboard Shortcuts</h2></div><button id="closeShortcutModal" class="icon-button">×</button></div><div class="shortcut-grid"><span>Focus address bar</span><span class="kbd">Ctrl/⌘ + L</span><span>New tab</span><span class="kbd">Ctrl/⌘ + T</span><span>Close tab</span><span class="kbd">Ctrl/⌘ + W</span><span>Bookmark current page</span><span class="kbd">Ctrl/⌘ + D</span><span>Open home</span><span class="kbd">Alt + Home</span><span>Open bookmarks</span><span class="kbd">Ctrl/⌘ + Shift + B</span><span>Command palette</span><span class="kbd">Ctrl/⌘ + K</span><span>Reopen closed tab</span><span class="kbd">Ctrl/⌘ + Shift + T</span><span>Toggle vertical tabs</span><span class="kbd">Ctrl/⌘ + Shift + V</span></div></div></div>
+  <div id="commandPalette" class="command-backdrop"><div class="command-box"><input id="commandInput" class="command-input" placeholder="Search commands, tabs, bookmarks and history…"><div id="commandList" class="command-list"></div></div></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+const $=id=>document.getElementById(id);
+const uid=()=> (crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()));
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const baseWorkspaces=[{id:'personal',name:'Personal'},{id:'work',name:'Work'},{id:'research',name:'Research'}];
+const state={
+ tabs:load('openTabs',[{id:uid(),title:'New Tab',value:'',workspace:'personal',pinned:false,lastActive:Date.now()}]), activeTabId:localStorage.getItem('openActiveTab')||null,
+ bookmarks:load('openBrowserBookmarks',[]),history:load('openBrowserHistory',[]),reading:load('openReadingList',[]),collections:load('openCollections',[]),sessions:load('openSessions',[]),
+ workspaces:load('openWorkspaces',baseWorkspaces),activeWorkspace:localStorage.getItem('openActiveWorkspace')||'personal',closedTabs:load('openClosedTabs',[]),
+ safeMode:localStorage.getItem('openSafeMode')!=='false',privateMode:sessionStorage.getItem('openPrivateMode')==='true',engine:localStorage.getItem('openSearchEngine')||'google',
+ verticalTabs:localStorage.getItem('openVerticalTabs')==='true',focusMode:sessionStorage.getItem('openFocusMode')==='true',deferredPrompt:null
+};
+if(!state.workspaces.length)state.workspaces=[...baseWorkspaces];
+if(!state.workspaces.some(w=>w.id===state.activeWorkspace))state.activeWorkspace=state.workspaces[0].id;
+state.tabs=state.tabs.map(t=>({...t,workspace:t.workspace||state.activeWorkspace,pinned:!!t.pinned,lastActive:t.lastActive||Date.now()}));
+if(!state.tabs.length)state.tabs=[{id:uid(),title:'New Tab',value:'',workspace:state.activeWorkspace,pinned:false,lastActive:Date.now()}];
+if(!state.tabs.some(t=>t.id===state.activeTabId))state.activeTabId=(state.tabs.find(t=>t.workspace===state.activeWorkspace)||state.tabs[0]).id;
+const quickLinks=[['Google','https://www.google.com','G'],['YouTube','https://www.youtube.com','YT'],['Wikipedia','https://www.wikipedia.org','W'],['GitHub','https://github.com','GH'],['Gmail','https://mail.google.com','M'],['Google Maps','https://maps.google.com','MAP'],['Google Drive','https://drive.google.com','DR'],['LinkedIn','https://www.linkedin.com','IN'],['Reddit','https://www.reddit.com','R'],['Stack Overflow','https://stackoverflow.com','SO'],['Coursera','https://www.coursera.org','CO'],['Khan Academy','https://www.khanacademy.org','KA']];
+const engineUrl=q=>({google:`https://www.google.com/search?q=${encodeURIComponent(q)}${state.safeMode?'&safe=active':''}`,bing:`https://www.bing.com/search?q=${encodeURIComponent(q)}${state.safeMode?'&adlt=strict':''}`,duck:`https://duckduckgo.com/?q=${encodeURIComponent(q)}${state.safeMode?'&kp=1':''}`,brave:`https://search.brave.com/search?q=${encodeURIComponent(q)}${state.safeMode?'&safesearch=strict':''}`}[state.engine]);
+function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),2400)}
+function normalizeDestination(raw){const value=String(raw||'').trim();if(!value)return null;const looks=/^https?:\/\//i.test(value)||/^[\w.-]+\.[a-z]{2,}(?:[\/:?#].*)?$/i.test(value);if(looks){const u=/^https?:\/\//i.test(value)?value:`https://${value}`;try{const x=new URL(u);return{url:x.href,title:x.hostname.replace(/^www\./,'')}}catch{}}return{url:engineUrl(value),title:value}}
+function currentTab(){return state.tabs.find(t=>t.id===state.activeTabId)||state.tabs[0]}
+function visibleTabs(){return state.tabs.filter(t=>t.workspace===state.activeWorkspace).sort((a,b)=>Number(b.pinned)-Number(a.pinned))}
+function persistCore(){localStorage.setItem('openTabs',JSON.stringify(state.tabs.slice(0,40)));localStorage.setItem('openActiveTab',state.activeTabId);localStorage.setItem('openActiveWorkspace',state.activeWorkspace);localStorage.setItem('openWorkspaces',JSON.stringify(state.workspaces));localStorage.setItem('openCollections',JSON.stringify(state.collections));localStorage.setItem('openSessions',JSON.stringify(state.sessions));localStorage.setItem('openClosedTabs',JSON.stringify(state.closedTabs.slice(0,20)));updateStats()}
+function navigate(raw,{open=true,newtab=false}={}){const d=normalizeDestination(raw);if(!d)return;let t=currentTab();if(newtab){newTab(false);t=currentTab()}t.value=d.url;t.title=d.title||'Website';t.lastActive=Date.now();$('addressInput').value=d.url;if(!state.privateMode)addHistory(d.title,d.url);renderTabs();persistCore();if(open){const w=window.open(d.url,'_blank','noopener,noreferrer');if(!w)toast('Popup blocked. Allow popups for this app.')}}
+function addHistory(title,url){state.history=[{title,url,time:Date.now()},...state.history.filter(x=>x.url!==url)].slice(0,250);localStorage.setItem('openBrowserHistory',JSON.stringify(state.history));renderHistory();renderFullLists();renderSuggestions()}
+function addBookmark(url,title){if(!url)return toast('Open a website first.');if(!state.bookmarks.some(x=>x.url===url)){state.bookmarks.unshift({title:title||url,url,time:Date.now()});localStorage.setItem('openBrowserBookmarks',JSON.stringify(state.bookmarks));renderBookmarks();renderFullLists();renderSuggestions();toast('Bookmark saved.')}else toast('Already bookmarked.')}
+function addReading(){const t=currentTab(),d=normalizeDestination($('addressInput').value||t.value);if(!d)return toast('Open a website first.');if(!state.reading.some(x=>x.url===d.url)){state.reading.unshift({title:t.title||d.title,url:d.url,time:Date.now()});localStorage.setItem('openReadingList',JSON.stringify(state.reading));renderFullLists();toast('Added to reading list.')}else toast('Already in reading list.')}
+function renderTabs(){const box=$('tabs');box.innerHTML='';let tabs=visibleTabs();if(!tabs.length){const t={id:uid(),title:'New Tab',value:'',workspace:state.activeWorkspace,pinned:false,lastActive:Date.now()};state.tabs.push(t);state.activeTabId=t.id;tabs=[t]}if(!tabs.some(t=>t.id===state.activeTabId)){state.activeTabId=tabs[0].id;$('addressInput').value=tabs[0].value||''}tabs.forEach(t=>{const e=document.createElement('div');const sleeping=Date.now()-t.lastActive>20*60*1000;e.className=`tab ${t.id===state.activeTabId?'active':''} ${t.pinned?'tab-pinned':''} ${sleeping?'sleeping':''}`;e.title=sleeping?'Inactive tab — select to wake':'Browser tab';e.innerHTML=`<button class="tab-pin" title="${t.pinned?'Unpin':'Pin'} tab">${t.pinned?'●':'○'}</button><button class="tab-label">${esc(t.pinned?t.title.slice(0,10):t.title)}</button><button class="tab-close">×</button>`;e.querySelector('.tab-label').onclick=()=>activateTab(t.id);e.querySelector('.tab-pin').onclick=ev=>{ev.stopPropagation();t.pinned=!t.pinned;renderTabs();persistCore()};e.querySelector('.tab-close').onclick=()=>closeTab(t.id);e.ondblclick=()=>duplicateTab(t.id);box.appendChild(e)});updateStats()}
+function activateTab(id){const t=state.tabs.find(x=>x.id===id);if(!t)return;state.activeTabId=id;t.lastActive=Date.now();$('addressInput').value=t.value||'';renderTabs();persistCore()}
+function newTab(focus=true){const t={id:uid(),title:'New Tab',value:'',workspace:state.activeWorkspace,pinned:false,lastActive:Date.now()};state.tabs.push(t);state.activeTabId=t.id;$('addressInput').value='';renderTabs();persistCore();if(focus)$('addressInput').focus()}
+function duplicateTab(id=state.activeTabId){const src=state.tabs.find(t=>t.id===id);if(!src)return;const t={...src,id:uid(),title:src.title+' copy',pinned:false,lastActive:Date.now()};state.tabs.push(t);state.activeTabId=t.id;renderTabs();persistCore();toast('Tab duplicated.')}
+function closeTab(id){const i=state.tabs.findIndex(t=>t.id===id);if(i<0)return;const [closed]=state.tabs.splice(i,1);state.closedTabs.unshift(closed);if(!state.tabs.some(t=>t.workspace===state.activeWorkspace))state.tabs.push({id:uid(),title:'New Tab',value:'',workspace:state.activeWorkspace,pinned:false,lastActive:Date.now()});if(state.activeTabId===id)state.activeTabId=(state.tabs.find(t=>t.workspace===state.activeWorkspace)||state.tabs[0]).id;$('addressInput').value=currentTab().value||'';renderTabs();persistCore()}
+function reopenClosed(){const t=state.closedTabs.shift();if(!t)return toast('No recently closed tab.');t.id=uid();t.workspace=state.activeWorkspace;t.lastActive=Date.now();state.tabs.push(t);state.activeTabId=t.id;renderTabs();persistCore();toast('Closed tab restored.')}
+function cardHtml([name,url,icon]){return `<button class="quick-card" data-url="${url}"><span class="quick-icon">${icon}</span><span><strong>${name}</strong><span>${url.replace('https://','')}</span></span></button>`}
+function renderQuickLinks(){['quickLinksGrid','quickLinksGridFull'].forEach(id=>{const el=$(id);if(!el)return;el.innerHTML=quickLinks.map(cardHtml).join('');el.querySelectorAll('.quick-card').forEach(b=>b.onclick=()=>navigate(b.dataset.url))})}
+function listHtml(arr,type){if(!arr.length)return '<div class="empty-state">Nothing here yet.</div>';return arr.map((x,i)=>`<div class="list-item"><button data-open="${encodeURIComponent(x.url)}"><strong>${esc(x.title)}</strong><span>${esc(x.url)}</span></button><div class="item-actions"><button class="mini" data-remove="${type}:${i}">×</button></div></div>`).join('')}
+function bindList(el){el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>navigate(decodeURIComponent(b.dataset.open)));el.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{const [type,i]=b.dataset.remove.split(':');const arr=type==='bookmark'?state.bookmarks:type==='history'?state.history:state.reading;arr.splice(+i,1);persist(type);renderBookmarks();renderHistory();renderFullLists()})}
+function persist(type){if(type==='bookmark')localStorage.setItem('openBrowserBookmarks',JSON.stringify(state.bookmarks));if(type==='history')localStorage.setItem('openBrowserHistory',JSON.stringify(state.history));if(type==='reading')localStorage.setItem('openReadingList',JSON.stringify(state.reading))}
+function renderBookmarks(){const e=$('bookmarksList');if(!state.bookmarks.length){e.className='list empty-state';e.textContent='No bookmarks yet.';return}e.className='list';e.innerHTML=listHtml(state.bookmarks.slice(0,8),'bookmark');bindList(e)}
+function renderHistory(){const e=$('historyList');if(!state.history.length){e.className='list empty-state';e.textContent='No browsing history yet.';return}e.className='list';e.innerHTML=listHtml(state.history.slice(0,12),'history');bindList(e)}
+function renderFullLists(){const b=$('bookmarksFull'),h=$('historyFull'),r=$('readingList');if(b){b.innerHTML=listHtml(state.bookmarks,'bookmark');bindList(b)}if(h){h.innerHTML=listHtml(state.history,'history');bindList(h)}if(r){r.innerHTML=listHtml(state.reading,'reading');bindList(r)}updateStats()}
+function updateStats(){if($('statBookmarks'))$('statBookmarks').textContent=state.bookmarks.length;if($('statHistory'))$('statHistory').textContent=state.history.length;if($('statReading'))$('statReading').textContent=state.reading.length;if($('statTabs'))$('statTabs').textContent=state.tabs.length}
+function showView(name){document.querySelectorAll('.tool-panel').forEach(v=>v.classList.remove('active'));const v=$(name+'View');if(v)v.classList.add('active');document.querySelectorAll('.side-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));$('sidebar').classList.remove('open');window.scrollTo({top:0,behavior:'smooth'})}
+function setPrivate(on){state.privateMode=on;sessionStorage.setItem('openPrivateMode',String(on));$('privateBadge').classList.toggle('show',on);['privateModeToggle','privacyPrivateToggle'].forEach(id=>{if($(id))$(id).checked=on});if($('privacyPrivateStatus'))$('privacyPrivateStatus').textContent=on?'On — local history paused':'Off';toast(`Private session ${on?'on':'off'}.`)}
+function setSafe(on){state.safeMode=on;localStorage.setItem('openSafeMode',String(on));['safeModeToggle','safeModeToggle2','privacySafeToggle'].forEach(id=>{if($(id))$(id).checked=on});if($('privacySafeStatus'))$('privacySafeStatus').textContent=on?'Enabled':'Disabled';toast(`Safe Search Mode ${on?'on':'off'}.`)}
+function setEngine(v){state.engine=v;localStorage.setItem('openSearchEngine',v);['searchEngineSelect','searchEngineSelect2'].forEach(id=>{if($(id))$(id).value=v});toast('Search engine updated.')}
+function renderWorkspaces(){const chips=$('workspaceChips');chips.innerHTML=state.workspaces.map(w=>`<button class="workspace-chip ${w.id===state.activeWorkspace?'active':''}" data-workspace="${w.id}">${esc(w.name)} · ${state.tabs.filter(t=>t.workspace===w.id).length}</button>`).join('');chips.querySelectorAll('[data-workspace]').forEach(b=>b.onclick=()=>switchWorkspace(b.dataset.workspace));const list=$('workspacesList');if(list){list.innerHTML=state.workspaces.map(w=>`<div class="management-card"><div><strong>${esc(w.name)}</strong><p>${state.tabs.filter(t=>t.workspace===w.id).length} tab(s)</p></div><div class="management-actions"><button class="mini-button" data-wopen="${w.id}">Open</button>${state.workspaces.length>1?`<button class="mini-button" data-wdelete="${w.id}">Delete</button>`:''}</div></div>`).join('');list.querySelectorAll('[data-wopen]').forEach(b=>b.onclick=()=>switchWorkspace(b.dataset.wopen));list.querySelectorAll('[data-wdelete]').forEach(b=>b.onclick=()=>deleteWorkspace(b.dataset.wdelete))}}
+function createWorkspace(name){name=String(name||'').trim();if(!name)return toast('Enter a workspace name.');const id='w-'+uid();state.workspaces.push({id,name});state.activeWorkspace=id;newTab(false);renderWorkspaces();renderTabs();persistCore();toast('Workspace created.')}
+function switchWorkspace(id){if(!state.workspaces.some(w=>w.id===id))return;state.activeWorkspace=id;let t=state.tabs.find(t=>t.workspace===id);if(!t){t={id:uid(),title:'New Tab',value:'',workspace:id,pinned:false,lastActive:Date.now()};state.tabs.push(t)}state.activeTabId=t.id;$('addressInput').value=t.value||'';renderWorkspaces();renderTabs();persistCore()}
+function deleteWorkspace(id){if(state.workspaces.length<=1)return;const fallback=state.workspaces.find(w=>w.id!==id);state.tabs.forEach(t=>{if(t.workspace===id)t.workspace=fallback.id});state.workspaces=state.workspaces.filter(w=>w.id!==id);if(state.activeWorkspace===id)state.activeWorkspace=fallback.id;switchWorkspace(state.activeWorkspace);toast('Workspace removed; its tabs were moved.')}
+function addCurrentToCollection(id){const c=state.collections.find(c=>c.id===id),t=currentTab(),d=normalizeDestination($('addressInput').value||t.value);if(!c||!d)return toast('Open a website first.');if(!c.items.some(x=>x.url===d.url))c.items.unshift({title:t.title||d.title,url:d.url,time:Date.now()});persistCore();renderCollections();toast('Added to collection.')}
+function createCollection(name){name=String(name||'').trim();if(!name)return toast('Enter a collection name.');state.collections.unshift({id:uid(),name,items:[]});persistCore();renderCollections();toast('Collection created.')}
+function renderCollections(){const el=$('collectionsList');if(!el)return;if(!state.collections.length){el.innerHTML='<div class="empty-state">No collections yet. Create one for a project, course or research topic.</div>';return}el.innerHTML=state.collections.map(c=>`<div class="management-card"><div><strong>${esc(c.name)}</strong><p>${c.items.length} saved page(s)${c.items.slice(0,2).map(i=>` · ${esc(i.title)}`).join('')}</p></div><div class="management-actions"><button class="mini-button" data-cadd="${c.id}">Add current</button><button class="mini-button" data-copen="${c.id}">Open all</button><button class="mini-button" data-cdelete="${c.id}">Delete</button></div></div>`).join('');el.querySelectorAll('[data-cadd]').forEach(b=>b.onclick=()=>addCurrentToCollection(b.dataset.cadd));el.querySelectorAll('[data-copen]').forEach(b=>b.onclick=()=>{const c=state.collections.find(c=>c.id===b.dataset.copen);c.items.forEach(i=>window.open(i.url,'_blank','noopener,noreferrer'))});el.querySelectorAll('[data-cdelete]').forEach(b=>b.onclick=()=>{state.collections=state.collections.filter(c=>c.id!==b.dataset.cdelete);persistCore();renderCollections()})}
+function saveSession(name){name=String(name||'').trim()||`Session ${new Date().toLocaleDateString()}`;state.sessions.unshift({id:uid(),name,time:Date.now(),workspace:state.activeWorkspace,tabs:state.tabs.filter(t=>t.workspace===state.activeWorkspace).map(({id,...t})=>t)});state.sessions=state.sessions.slice(0,20);persistCore();renderSessions();toast('Session saved.')}
+function restoreSession(id){const s=state.sessions.find(s=>s.id===id);if(!s)return;const ws=state.workspaces.find(w=>w.id===s.workspace)?s.workspace:state.activeWorkspace;state.tabs=state.tabs.filter(t=>t.workspace!==ws);s.tabs.forEach(t=>state.tabs.push({...t,id:uid(),workspace:ws,lastActive:Date.now()}));state.activeWorkspace=ws;state.activeTabId=(state.tabs.find(t=>t.workspace===ws)||state.tabs[0]).id;renderAll();toast('Session restored.')}
+function renderSessions(){const el=$('sessionsList');if(!el)return;if(!state.sessions.length){el.innerHTML='<div class="empty-state">No saved sessions yet.</div>';return}el.innerHTML=state.sessions.map(s=>`<div class="management-card"><div><strong>${esc(s.name)}</strong><p>${s.tabs.length} tab(s) · ${new Date(s.time).toLocaleString()}</p></div><div class="management-actions"><button class="mini-button" data-srestore="${s.id}">Restore</button><button class="mini-button" data-sdelete="${s.id}">Delete</button></div></div>`).join('');el.querySelectorAll('[data-srestore]').forEach(b=>b.onclick=()=>restoreSession(b.dataset.srestore));el.querySelectorAll('[data-sdelete]').forEach(b=>b.onclick=()=>{state.sessions=state.sessions.filter(s=>s.id!==b.dataset.sdelete);persistCore();renderSessions()})}
+function toggleVerticalTabs(){state.verticalTabs=!state.verticalTabs;localStorage.setItem('openVerticalTabs',String(state.verticalTabs));document.body.classList.toggle('vertical-tabs-mode',state.verticalTabs);toast(`${state.verticalTabs?'Vertical':'Horizontal'} tabs enabled.`)}
+function toggleFocus(){state.focusMode=!state.focusMode;sessionStorage.setItem('openFocusMode',String(state.focusMode));document.body.classList.toggle('focus-mode',state.focusMode);toast(`Focus mode ${state.focusMode?'on':'off'}.`)}
+async function shareCurrent(){const t=currentTab(),d=normalizeDestination($('addressInput').value||t.value);if(!d)return toast('Open a website first.');try{if(navigator.share)await navigator.share({title:t.title||'Open Browser',url:d.url});else{await navigator.clipboard.writeText(d.url);toast('Link copied.')}}catch{}}
+function translateCurrent(){const t=currentTab(),d=normalizeDestination($('addressInput').value||t.value);if(!d)return toast('Open a website first.');window.open(`https://translate.google.com/translate?sl=auto&tl=en&u=${encodeURIComponent(d.url)}`,'_blank','noopener,noreferrer')}
+function exportData(){const data={version:'1.4',exportedAt:new Date().toISOString(),bookmarks:state.bookmarks,history:state.history,reading:state.reading,collections:state.collections,sessions:state.sessions,workspaces:state.workspaces,tabs:state.tabs,settings:{safeMode:state.safeMode,engine:state.engine,verticalTabs:state.verticalTabs}};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='open-browser-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Browser data exported.')}
+async function importData(file){try{const data=JSON.parse(await file.text());if(data.bookmarks)state.bookmarks=data.bookmarks;if(data.history)state.history=data.history;if(data.reading)state.reading=data.reading;if(data.collections)state.collections=data.collections;if(data.sessions)state.sessions=data.sessions;if(data.workspaces?.length)state.workspaces=data.workspaces;if(data.tabs?.length)state.tabs=data.tabs.map(t=>({...t,id:t.id||uid(),workspace:t.workspace||state.activeWorkspace}));localStorage.setItem('openBrowserBookmarks',JSON.stringify(state.bookmarks));localStorage.setItem('openBrowserHistory',JSON.stringify(state.history));localStorage.setItem('openReadingList',JSON.stringify(state.reading));persistCore();renderAll();toast('Browser data imported.')}catch{toast('That file is not a valid browser export.')}}
+function clearAll(){['openBrowserBookmarks','openBrowserHistory','openReadingList','openFocusNotes','openTabs','openActiveTab','openCollections','openSessions','openWorkspaces','openClosedTabs'].forEach(k=>localStorage.removeItem(k));state.bookmarks=[];state.history=[];state.reading=[];state.collections=[];state.sessions=[];state.workspaces=[...baseWorkspaces];state.activeWorkspace='personal';state.tabs=[{id:uid(),title:'New Tab',value:'',workspace:'personal',pinned:false,lastActive:Date.now()}];state.activeTabId=state.tabs[0].id;$('studyNotes').value='';renderAll();toast('Local browser data cleared.')}
+function renderSuggestions(){const q=($('addressInput').value||'').trim().toLowerCase(),box=$('suggestionBox');if(!q){box.classList.remove('show');return}const candidates=[...state.bookmarks,...state.history].filter(x=>(x.title+' '+x.url).toLowerCase().includes(q)).filter((x,i,a)=>a.findIndex(y=>y.url===x.url)===i).slice(0,6);if(!candidates.length){box.classList.remove('show');return}box.innerHTML=candidates.map(x=>`<button class="suggestion-item" data-surl="${encodeURIComponent(x.url)}"><strong>${esc(x.title)}</strong><br><small>${esc(x.url)}</small></button>`).join('');box.querySelectorAll('[data-surl]').forEach(b=>b.onclick=()=>{box.classList.remove('show');navigate(decodeURIComponent(b.dataset.surl))});box.classList.add('show')}
+const commands=[
+ ['New tab','Ctrl/⌘+T',()=>newTab()],['Reopen closed tab','Ctrl/⌘+Shift+T',reopenClosed],['Toggle vertical tabs','Ctrl/⌘+Shift+V',toggleVerticalTabs],['Toggle focus mode','Focus',toggleFocus],['Save current page to reading list','Reading',addReading],['Bookmark current page','Ctrl/⌘+D',()=>$('bookmarkCurrentBtn').click()],['Share current page','Share',shareCurrent],['Translate current page','Translate',translateCurrent],['Open bookmarks','Saved',()=>showView('bookmarks')],['Open history','Recent',()=>showView('history')],['Open collections','Research',()=>showView('collections')],['Open sessions','Flow',()=>showView('sessions')],['Open workspaces','Organize',()=>showView('workspaces')],['Open privacy center','Privacy',()=>showView('privacy')],['Open settings','Control',()=>showView('settings')]
+];
+function paletteItems(q=''){q=q.toLowerCase();const dyn=[...commands.map((c,i)=>({label:c[0],meta:c[1],run:c[2]})),...visibleTabs().map(t=>({label:'Tab: '+t.title,meta:t.value||'New tab',run:()=>activateTab(t.id)})),...state.bookmarks.map(b=>({label:'Bookmark: '+b.title,meta:b.url,run:()=>navigate(b.url)}))];return dyn.filter(x=>(x.label+' '+x.meta).toLowerCase().includes(q)).slice(0,20)}
+function renderCommandList(q=''){const list=$('commandList'),items=paletteItems(q);list.innerHTML=items.map((x,i)=>`<button class="command-item" data-ci="${i}"><span>${esc(x.label)}</span><small>${esc(x.meta)}</small></button>`).join('')||'<div class="empty-state">No matching commands.</div>';list.querySelectorAll('[data-ci]').forEach(b=>b.onclick=()=>{items[+b.dataset.ci].run();closePalette()})}
+function openPalette(){renderCommandList('');$('commandPalette').classList.add('show');setTimeout(()=>$('commandInput').focus(),0)}function closePalette(){$('commandPalette').classList.remove('show');$('commandInput').value=''}
+function renderAll(){renderTabs();renderQuickLinks();renderBookmarks();renderHistory();renderFullLists();renderWorkspaces();renderCollections();renderSessions();$('addressInput').value=currentTab().value||'';document.body.classList.toggle('vertical-tabs-mode',state.verticalTabs);document.body.classList.toggle('focus-mode',state.focusMode);setSafe(state.safeMode);setPrivate(state.privateMode);setEngine(state.engine)}
+$('addressForm').onsubmit=e=>{e.preventDefault();$('suggestionBox').classList.remove('show');navigate($('addressInput').value)};$('heroSearchForm').onsubmit=e=>{e.preventDefault();navigate($('heroSearchInput').value)};$('addressInput').oninput=renderSuggestions;$('addressInput').onblur=()=>setTimeout(()=>$('suggestionBox').classList.remove('show'),180);
+$('newTabBtn').onclick=()=>newTab();$('homeBtn').onclick=()=>showView('home');$('refreshBtn').onclick=()=>{const t=currentTab();if(t.value)navigate(t.value);else location.reload()};$('backBtn').onclick=()=>history.back();$('forwardBtn').onclick=()=>history.forward();$('openExternalBtn').onclick=()=>navigate($('addressInput').value||currentTab().value);$('bookmarkCurrentBtn').onclick=()=>{const t=currentTab(),d=normalizeDestination($('addressInput').value||t.value);if(d)addBookmark(d.url,t.title||d.title)};
+$('clearBookmarksBtn').onclick=$('clearBookmarksBtn2').onclick=()=>{state.bookmarks=[];persist('bookmark');renderBookmarks();renderFullLists();toast('Bookmarks cleared.')};$('clearHistoryBtn').onclick=$('clearHistoryBtn2').onclick=()=>{state.history=[];persist('history');renderHistory();renderFullLists();toast('History cleared.')};$('clearReadingBtn').onclick=()=>{state.reading=[];persist('reading');renderFullLists();toast('Reading list cleared.')};$('saveReadingBtn').onclick=addReading;
+$('safeModeToggle').onchange=e=>setSafe(e.target.checked);$('safeModeToggle2').onchange=e=>setSafe(e.target.checked);$('privacySafeToggle').onchange=e=>setSafe(e.target.checked);$('privateModeBtn').onclick=()=>setPrivate(!state.privateMode);$('privateModeHomeBtn').onclick=()=>setPrivate(!state.privateMode);$('privateModeToggle').onchange=e=>setPrivate(e.target.checked);$('privacyPrivateToggle').onchange=e=>setPrivate(e.target.checked);
+$('searchEngineSelect').onchange=e=>setEngine(e.target.value);$('searchEngineSelect2').onchange=e=>setEngine(e.target.value);const toggleTheme=()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;localStorage.setItem('openBrowserTheme',n)};$('themeBtn').onclick=toggleTheme;$('themeSettingsBtn').onclick=toggleTheme;
+$('sidebarToggle').onclick=()=>$('sidebar').classList.toggle('open');document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>showView(b.dataset.view));document.querySelectorAll('[data-open-view]').forEach(b=>b.onclick=()=>showView(b.dataset.openView));
+const openShortcuts=()=>$('shortcutModal').classList.add('show');$('shortcutsBtn').onclick=openShortcuts;$('shortcutsHomeBtn').onclick=openShortcuts;$('closeShortcutModal').onclick=()=>$('shortcutModal').classList.remove('show');$('shortcutModal').onclick=e=>{if(e.target===$('shortcutModal'))$('shortcutModal').classList.remove('show')};
+$('commandBtn').onclick=openPalette;$('commandInput').oninput=e=>renderCommandList(e.target.value);$('commandPalette').onclick=e=>{if(e.target===$('commandPalette'))closePalette()};$('shareBtn').onclick=shareCurrent;$('shareHomeBtn').onclick=shareCurrent;$('translateHomeBtn').onclick=translateCurrent;$('verticalTabsHomeBtn').onclick=toggleVerticalTabs;$('verticalTabsSettingsBtn').onclick=toggleVerticalTabs;$('focusModeBtn').onclick=toggleFocus;
+$('quickAddWorkspace').onclick=()=>{const name=prompt('Workspace name');if(name)createWorkspace(name)};$('createWorkspaceBtn').onclick=()=>{createWorkspace($('workspaceNameInput').value);$('workspaceNameInput').value=''};$('createCollectionBtn').onclick=()=>{createCollection($('collectionNameInput').value);$('collectionNameInput').value=''};$('saveSessionBtn').onclick=()=>{saveSession($('sessionNameInput').value);$('sessionNameInput').value=''};
+$('launchCompareBtn').onclick=()=>{const a=normalizeDestination($('compareA').value),b=normalizeDestination($('compareB').value);if(!a||!b)return toast('Enter two URLs or searches.');window.open(a.url,'_blank','noopener,noreferrer');setTimeout(()=>window.open(b.url,'_blank','noopener,noreferrer'),120)};
+$('studyNotes').value=localStorage.getItem('openFocusNotes')||'';let nt;$('studyNotes').oninput=e=>{clearTimeout(nt);$('notesStatus').textContent='Saving…';nt=setTimeout(()=>{localStorage.setItem('openFocusNotes',e.target.value);$('notesStatus').textContent='Saved locally'},350)};$('copyNotesBtn').onclick=async()=>{await navigator.clipboard.writeText($('studyNotes').value);toast('Notes copied.')};$('clearNotesBtn').onclick=()=>{$('studyNotes').value='';localStorage.removeItem('openFocusNotes');toast('Notes cleared.')};
+$('clearAllDataBtn').onclick=clearAll;$('clearAllPrivacyBtn').onclick=clearAll;$('clearHistoryPrivacyBtn').onclick=()=>{state.history=[];persist('history');renderHistory();renderFullLists();toast('History cleared.')};$('exportDataBtn').onclick=exportData;$('exportDataBtnPrivacy').onclick=exportData;$('importDataBtn').onclick=()=>$('importDataFile').click();$('importDataFile').onchange=e=>{if(e.target.files[0])importData(e.target.files[0])};
+document.addEventListener('keydown',e=>{const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();if(mod&&k==='l'){e.preventDefault();$('addressInput').focus();$('addressInput').select()}if(mod&&k==='t'&&!e.shiftKey){e.preventDefault();newTab()}if(mod&&k==='w'){e.preventDefault();closeTab(state.activeTabId)}if(mod&&k==='d'){e.preventDefault();$('bookmarkCurrentBtn').click()}if(mod&&e.shiftKey&&k==='b'){e.preventDefault();showView('bookmarks')}if(mod&&e.shiftKey&&k==='t'){e.preventDefault();reopenClosed()}if(mod&&e.shiftKey&&k==='v'){e.preventDefault();toggleVerticalTabs()}if(mod&&k==='k'){e.preventDefault();openPalette()}if(e.altKey&&e.key==='Home'){e.preventDefault();showView('home')}if(e.key==='Escape'){closePalette();$('shortcutModal').classList.remove('show')}});
+document.documentElement.dataset.theme=localStorage.getItem('openBrowserTheme')||'light';
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.deferredPrompt=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!state.deferredPrompt)return toast('Use your browser menu and choose Install app / Add to Home Screen.');state.deferredPrompt.prompt();await state.deferredPrompt.userChoice;state.deferredPrompt=null;$('installBtn').hidden=true};window.addEventListener('appinstalled',()=>toast('Open Browser installed.'));if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+renderAll();
+</script>
+</body>
+</html>
