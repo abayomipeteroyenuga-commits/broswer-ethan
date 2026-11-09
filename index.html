@@ -501,8 +501,8 @@ window.normalizeDestination=function(raw){
  if(!result||!validHttpUrl(result.url)){window.toast?.('Please enter a valid website address or search phrase.');return null}
  return result;
 };
-window.persistCore=function(){if(window.state?.privateMode){window.updateStats?.();return}return originalPersist()};
-window.saveSession=function(name){if(window.state?.privateMode){window.toast?.('Saved sessions are disabled during a private session.');return}return originalSaveSession(name)};
+window.persistCore=function(){if(state?.privateMode){window.updateStats?.();return}return originalPersist()};
+window.saveSession=function(name){if(state?.privateMode){window.toast?.('Saved sessions are disabled during a private session.');return}return originalSaveSession(name)};
 window.setPrivate=function(on){
  const s=window.state;if(!s)return originalSetPrivate(on);on=!!on;
  if(on===s.privateMode){originalSetPrivate(on);return}
@@ -519,7 +519,7 @@ window.setPrivate=function(on){
 };
 const originalNavigate=window.navigate;
 window.navigate=function(raw,options){const d=window.normalizeDestination(raw);if(!d)return;if(d.url.startsWith('http://')&&!window.confirm('This website uses an unencrypted HTTP connection. Information sent to it may be visible to others. Continue?'))return;return originalNavigate(d.url,options)};
-document.addEventListener('keydown',e=>{const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();if(mod&&e.shiftKey&&k==='n'){e.preventDefault();window.setPrivate(!window.state.privateMode)}if(mod&&e.shiftKey&&k==='d'){e.preventDefault();window.duplicateTab(window.state.activeTabId)}if(mod&&e.shiftKey&&k==='l'){e.preventDefault();window.showView('reading')}});
+document.addEventListener('keydown',e=>{const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();if(mod&&e.shiftKey&&k==='n'){e.preventDefault();window.setPrivate(!state.privateMode)}if(mod&&e.shiftKey&&k==='d'){e.preventDefault();window.duplicateTab(state.activeTabId)}if(mod&&e.shiftKey&&k==='l'){e.preventDefault();window.showView('reading')}});
 document.querySelectorAll('a[target="_blank"]').forEach(a=>{const rel=new Set((a.rel||'').split(/\s+/).filter(Boolean));rel.add('noopener');rel.add('noreferrer');a.rel=[...rel].join(' ')});
 const install=$('installBtn');if(install){install.title='Install Open Browser as an app on this device';install.setAttribute('aria-label','Install Open Browser')}
 const input=$('addressInput');if(input){input.setAttribute('spellcheck','false');input.setAttribute('autocapitalize','off')}
