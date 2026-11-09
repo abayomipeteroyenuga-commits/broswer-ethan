@@ -1,24 +1,28 @@
-# Open Browser v2.0 — Universal Professional PWA
+# Open Browser — Web Workspace
 
-A neutral, installable browser workspace designed for general public use. It is not tied to any academy, organization, or user group.
+A responsive, installable Progressive Web App (PWA) that provides a browser-style workspace for organising web activity.
 
-## Core features
-- Search/address omnibox with multiple search engines
-- Horizontal and vertical tabs
-- Pin, duplicate, close and reopen tabs
-- Workspaces and saved sessions
-- Bookmarks, history and reading list
-- Collections and local notes
+## Included capabilities
+- Search/address field with Google, Bing, DuckDuckGo and Brave Search
+- Workspace tabs, pinning, duplication, closing and reopening
+- Bookmarks, history, reading list and quick links
+- Collections, notes and saved browsing sessions
 - Command palette and keyboard shortcuts
-- Private session mode and safe-search mode
-- Light/dark appearance and focus mode
-- Quick links to popular web services
-- Import/export of local browser workspace data
-- PWA installation and offline application shell
-- Responsive desktop, tablet and mobile interface
+- Private workspace session with temporary tabs and no local history/session persistence while active
+- Safe-search preferences for supported search providers
+- Light/dark appearance, focus mode, responsive layouts and PWA installation
+- Local data import/export and offline application shell
+
+## Security and privacy notes
+- Navigation accepts HTTP and HTTPS URLs only; script, file and data URL schemes are rejected.
+- Plain HTTP destinations prompt before opening.
+- Workspace information is stored in the browser profile on the current device. No account sync or analytics backend is configured.
+- Private Session is a local workspace privacy feature. It does not replace private/incognito mode in the underlying browser and cannot clear or isolate cookies, cache, downloads, IP address or site permissions.
+- External websites are opened by the installed browser because many websites block embedding. Their cookies, trackers, downloads, permissions and content security are governed by that browser.
+- Safe Search asks supported search engines for stricter filtering; it is not a content filter or parental-control guarantee.
+
+## Platform boundary
+This is a PWA browser workspace, not a standalone browser engine. It cannot implement native extension APIs, engine-level ad blocking, password autofill, download interception, per-site permission controls, independent cookie stores or process isolation. Those capabilities require a native browser application and browser-engine integration.
 
 ## Deployment
-Deploy the files at the repository root on any HTTPS-capable static host such as Vercel, Netlify, GitHub Pages, Cloudflare Pages, or your own server.
-
-## Important web-platform limitation
-This is a PWA browser workspace, not an independent browser engine. External websites may open in separate tabs/windows because many sites block iframe embedding. Engine-level ad blocking, extension APIs, native password management, download interception and full browser process control require a native desktop/mobile browser build.
+Deploy the static site from the repository root on Vercel, Render, Netlify, Cloudflare Pages or another HTTPS static host. Configure `browser.ethandigitalacademy.org` on the selected host and add the DNS record requested by that host.
