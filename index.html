@@ -508,12 +508,12 @@ window.setPrivate=function(on){
  if(on===s.privateMode){originalSetPrivate(on);return}
  if(on){
   regularSnapshot={tabs:s.tabs.map(t=>({...t})),activeTabId:s.activeTabId,activeWorkspace:s.activeWorkspace};
-  s.privateMode=true;s.tabs=[{id:window.uid(),title:'Private tab',value:'',workspace:s.activeWorkspace,pinned:false,lastActive:Date.now()}];s.activeTabId=s.tabs[0].id;
+  s.privateMode=true;s.tabs=[{id:uid(),title:'Private tab',value:'',workspace:s.activeWorkspace,pinned:false,lastActive:Date.now()}];s.activeTabId=s.tabs[0].id;
   sessionStorage.setItem('openPrivateMode','true');$('addressInput').value='';window.renderAll();originalSetPrivate(true);window.toast('Private session started. Temporary tabs will not be saved.');
  }else{
   s.privateMode=false;sessionStorage.removeItem('openPrivateMode');
   if(regularSnapshot){s.tabs=regularSnapshot.tabs;s.activeTabId=regularSnapshot.activeTabId;s.activeWorkspace=regularSnapshot.activeWorkspace}
-  else{s.tabs=[{id:window.uid(),title:'New Tab',value:'',workspace:s.activeWorkspace,pinned:false,lastActive:Date.now()}];s.activeTabId=s.tabs[0].id}
+  else{s.tabs=[{id:uid(),title:'New Tab',value:'',workspace:s.activeWorkspace,pinned:false,lastActive:Date.now()}];s.activeTabId=s.tabs[0].id}
   regularSnapshot=null;window.renderAll();originalSetPrivate(false);window.persistCore();window.toast('Private session ended. Your regular tabs are restored.');
  }
 };
