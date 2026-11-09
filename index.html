@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#071a33" />
-  <meta name="description" content="Open Explorer — a polished, privacy-aware browser workspace for everyone." />
+  <meta name="description" content="Open Browser is a privacy-conscious web workspace for search, tabs, bookmarks, reading lists and focused research." />\n  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icons/icon-192.png" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
@@ -208,7 +208,15 @@ radial-gradient(circle at 88% 0%,rgba(23,199,217,.12),transparent 30%),var(--bg)
 
 </style>
   <title>Open Browser</title>
-</head>
+<style id="open-browser-v3">
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(28,105,255,.48);outline-offset:2px}
+button:disabled{opacity:.55;cursor:not-allowed}[hidden]{display:none!important}.address-form{position:relative}
+#suggestionBox{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:80;max-height:340px;overflow:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.suggestion-item{display:block;width:100%;padding:12px 14px;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text)}
+.suggestion-item:hover{background:rgba(28,105,255,.08)}.ob-v3-banner{padding:15px 17px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2);color:var(--muted);font-size:.88rem}.ob-v3-banner strong{color:var(--text)}
+.ob-v3-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}.ob-v3-stat{padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}.ob-v3-stat strong{display:block;font-size:1.1rem}.ob-v3-stat span{font-size:.78rem;color:var(--muted)}
+@media(max-width:700px){.ob-v3-grid{grid-template-columns:1fr}.toolbar{z-index:90}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style></head>
 <body>
   <div class="app-shell">
     <header class="topbar">
@@ -278,12 +286,12 @@ radial-gradient(circle at 88% 0%,rgba(23,199,217,.12),transparent 30%),var(--bg)
       <section class="hero-card">
         <p class="eyebrow">THE WEB, YOUR WAY</p>
         <h1>A professional browser workspace for everyone.</h1>
-        <p>Search and launch the web, organize research into workspaces and collections, save sessions, manage tabs, and move quickly across the your favorite sites.</p>
+        <p>Search and launch the web, organize research into workspaces and collections, save sessions, manage tabs, and move quickly across your favourite sites.</p>
         <form id="heroSearchForm" class="hero-search">
           <input id="heroSearchInput" placeholder="Search the web or type a URL" aria-label="Search the web or type a URL" />
           <button class="button primary" type="submit">Browse</button>
         </form>
-        <p class="privacy-note">Websites open in their own browser tab/window for compatibility and security.</p>
+        <p class="privacy-note">A browser workspace that works alongside your installed browser. External websites open in a separate tab or window when required for compatibility.</p>
       </section>
 
       <section class="quick-section">
@@ -359,7 +367,7 @@ radial-gradient(circle at 88% 0%,rgba(23,199,217,.12),transparent 30%),var(--bg)
     <main id="sessionsView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">SAVE YOUR FLOW</p><h2>Saved Sessions</h2></div></div><div class="form-grid"><input id="sessionNameInput" class="input" placeholder="Session name, e.g. AI Research"><button id="saveSessionBtn" class="button primary">Save current tabs</button></div><p class="session-note">Sessions save your tabs and workspace organization on this device.</p><div id="sessionsList" class="cards-list" style="margin-top:16px"></div></section></main>
     <main id="workspacesView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">CONTEXT MANAGEMENT</p><h2>Workspaces</h2></div></div><div class="form-grid"><input id="workspaceNameInput" class="input" placeholder="Workspace name"><button id="createWorkspaceBtn" class="button primary">Create workspace</button></div><div id="workspacesList" class="cards-list" style="margin-top:16px"></div></section></main>
     <main id="compareView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">RESEARCH TOOL</p><h2>Compare Two Pages</h2></div></div><div class="compare-grid"><input id="compareA" class="input" placeholder="First URL or search"><input id="compareB" class="input" placeholder="Second URL or search"></div><div class="panel-actions" style="margin-top:12px"><button id="launchCompareBtn" class="button primary">Launch both pages</button></div><div class="info-banner" style="margin-top:16px"><strong>Why separate windows?</strong> Many websites block iframe embedding. Open Browser launches both destinations so your device browser can place them in tabs/windows without breaking site security rules.</div></section></main>
-    <main id="privacyView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">LOCAL PRIVACY</p><h2>Privacy Center</h2></div></div><div class="privacy-grid"><div class="privacy-meter"><strong class="status-good">Safe Search</strong><span id="privacySafeStatus">Enabled</span></div><div class="privacy-meter"><strong class="status-good">Private Session</strong><span id="privacyPrivateStatus">Off</span></div><div class="privacy-meter"><strong>Local Data</strong><span id="privacyDataStatus">Stored only in this browser profile</span></div></div><div class="settings-grid" style="margin-top:16px"><div class="setting-row"><div><strong>Safe Search Mode</strong><p>Use family-friendly search parameters where supported.</p></div><label class="switch"><input id="privacySafeToggle" type="checkbox"><span class="slider"></span></label></div><div class="setting-row"><div><strong>Private Session</strong><p>Stops this app from adding new entries to its local history.</p></div><label class="switch"><input id="privacyPrivateToggle" type="checkbox"><span class="slider"></span></label></div></div><div class="info-banner" style="margin-top:16px"><strong>Important:</strong> Because external sites open in the underlying browser, this web app cannot block their trackers, cookies, downloads or permissions. Those protections remain controlled by Chrome, Edge, Firefox, Safari or the native browser engine.</div><div class="panel-actions" style="margin-top:16px"><button id="exportDataBtnPrivacy" class="button">Export browser data</button><button id="clearHistoryPrivacyBtn" class="button">Clear history</button><button id="clearAllPrivacyBtn" class="button danger">Clear all local data</button></div></section></main>
+    <main id="privacyView" class="tool-page tool-panel"><section class="panel"><div class="section-heading"><div><p class="eyebrow">LOCAL PRIVACY</p><h2>Privacy Center</h2></div></div><div class="privacy-grid"><div class="privacy-meter"><strong class="status-good">Safe Search</strong><span id="privacySafeStatus">Enabled</span></div><div class="privacy-meter"><strong class="status-good">Private Session</strong><span id="privacyPrivateStatus">Off</span></div><div class="privacy-meter"><strong>Local Data</strong><span id="privacyDataStatus">Stored only in this browser profile</span></div></div><div class="settings-grid" style="margin-top:16px"><div class="setting-row"><div><strong>Safe Search Mode</strong><p>Use family-friendly search parameters where supported.</p></div><label class="switch"><input id="privacySafeToggle" type="checkbox"><span class="slider"></span></label></div><div class="setting-row"><div><strong>Private Session</strong><p>Uses temporary tabs and pauses local history and session persistence until you exit.</p></div><label class="switch"><input id="privacyPrivateToggle" type="checkbox"><span class="slider"></span></label></div></div><div class="info-banner" style="margin-top:16px"><strong>Important:</strong> Because external sites open in the underlying browser, this web app cannot block their trackers, cookies, downloads or permissions. Those protections remain controlled by Chrome, Edge, Firefox, Safari or the native browser engine.</div><div class="panel-actions" style="margin-top:16px"><button id="exportDataBtnPrivacy" class="button">Export browser data</button><button id="clearHistoryPrivacyBtn" class="button">Clear history</button><button id="clearAllPrivacyBtn" class="button danger">Clear all local data</button></div></section></main>
     <main id="quickLinksView" class="tool-page tool-panel"><section><div class="section-heading"><div><p class="eyebrow">START HERE</p><h2>Quick Links</h2></div></div><div id="quickLinksGridFull" class="grid"></div></section></main>
     <main id="settingsView" class="tool-page tool-panel">
       <section class="panel"><div class="section-heading"><div><p class="eyebrow">CONTROL CENTER</p><h2>Browser Settings</h2></div></div>
@@ -374,7 +382,7 @@ radial-gradient(circle at 88% 0%,rgba(23,199,217,.12),transparent 30%),var(--bg)
         <div class="setting-row"><div><strong>Data portability</strong><p>Export or import bookmarks, history, reading list, workspaces and collections.</p></div><div class="panel-actions"><button id="exportDataBtn" class="button">Export</button><button id="importDataBtn" class="button">Import</button><input id="importDataFile" type="file" accept="application/json" hidden></div></div>
       </div>
       <div class="info-banner" style="margin-top:16px"><strong>Web-PWA limitation:</strong> This PWA provides its own browsing dashboard, saved data, tabs and launch controls. External sites may open in separate tabs/windows when they block embedding.</div>
-      <div class="panel-actions" style="margin-top:16px"><button id="clearAllDataBtn" class="button danger">Clear all browser data</button></div>
+      <div class="ob-v3-banner" style="margin-top:16px"><strong>Privacy and security</strong><br>Open Browser validates destinations before launch, keeps workspace data in this browser profile, and does not request camera, microphone or location access. Website cookies, tracking protection, downloads and site permissions are managed by your installed browser.</div><div class="ob-v3-grid"><div class="ob-v3-stat"><strong>HTTPS first</strong><span>Secure web addresses are preferred</span></div><div class="ob-v3-stat"><strong>Local storage</strong><span>Workspace data stays on this device</span></div><div class="ob-v3-stat"><strong>No analytics</strong><span>No analytics or account profiling added</span></div></div><div class="panel-actions" style="margin-top:16px"><button id="clearAllDataBtn" class="button danger">Clear all browser data</button></div>
       </section>
     </main>
       </div>
@@ -478,6 +486,45 @@ document.addEventListener('keydown',e=>{const mod=e.ctrlKey||e.metaKey,k=e.key.t
 document.documentElement.dataset.theme=localStorage.getItem('openBrowserTheme')||'light';
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.deferredPrompt=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!state.deferredPrompt)return toast('Use your browser menu and choose Install app / Add to Home Screen.');state.deferredPrompt.prompt();await state.deferredPrompt.userChoice;state.deferredPrompt=null;$('installBtn').hidden=true};window.addEventListener('appinstalled',()=>toast('Open Browser installed.'));if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 renderAll();
+</script>
+
+<script id="OPEN_BROWSER_HARDENING_V3">
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const originalNormalize=window.normalizeDestination,originalPersist=window.persistCore,originalSetPrivate=window.setPrivate,originalSaveSession=window.saveSession;
+let regularSnapshot=null;
+const validHttpUrl=value=>{try{const u=new URL(value);return (u.protocol==='https:'||u.protocol==='http:')&&!!u.hostname&&!u.username&&!u.password}catch{return false}};
+window.normalizeDestination=function(raw){
+ const text=String(raw??'').trim();if(!text)return null;
+ if(/^(javascript|data|file|vbscript|blob):/i.test(text)){window.toast?.('This address type is not supported. Use a normal web address.');return null}
+ const result=originalNormalize(text);
+ if(!result||!validHttpUrl(result.url)){window.toast?.('Please enter a valid website address or search phrase.');return null}
+ return result;
+};
+window.persistCore=function(){if(window.state?.privateMode){window.updateStats?.();return}return originalPersist()};
+window.saveSession=function(name){if(window.state?.privateMode){window.toast?.('Saved sessions are disabled during a private session.');return}return originalSaveSession(name)};
+window.setPrivate=function(on){
+ const s=window.state;if(!s)return originalSetPrivate(on);on=!!on;
+ if(on===s.privateMode){originalSetPrivate(on);return}
+ if(on){
+  regularSnapshot={tabs:s.tabs.map(t=>({...t})),activeTabId:s.activeTabId,activeWorkspace:s.activeWorkspace};
+  s.privateMode=true;s.tabs=[{id:window.uid(),title:'Private tab',value:'',workspace:s.activeWorkspace,pinned:false,lastActive:Date.now()}];s.activeTabId=s.tabs[0].id;
+  sessionStorage.setItem('openPrivateMode','true');$('addressInput').value='';window.renderAll();originalSetPrivate(true);window.toast('Private session started. Temporary tabs will not be saved.');
+ }else{
+  s.privateMode=false;sessionStorage.removeItem('openPrivateMode');
+  if(regularSnapshot){s.tabs=regularSnapshot.tabs;s.activeTabId=regularSnapshot.activeTabId;s.activeWorkspace=regularSnapshot.activeWorkspace}
+  else{s.tabs=[{id:window.uid(),title:'New Tab',value:'',workspace:s.activeWorkspace,pinned:false,lastActive:Date.now()}];s.activeTabId=s.tabs[0].id}
+  regularSnapshot=null;window.renderAll();originalSetPrivate(false);window.persistCore();window.toast('Private session ended. Your regular tabs are restored.');
+ }
+};
+const originalNavigate=window.navigate;
+window.navigate=function(raw,options){const d=window.normalizeDestination(raw);if(!d)return;if(d.url.startsWith('http://')&&!window.confirm('This website uses an unencrypted HTTP connection. Information sent to it may be visible to others. Continue?'))return;return originalNavigate(d.url,options)};
+document.addEventListener('keydown',e=>{const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();if(mod&&e.shiftKey&&k==='n'){e.preventDefault();window.setPrivate(!window.state.privateMode)}if(mod&&e.shiftKey&&k==='d'){e.preventDefault();window.duplicateTab(window.state.activeTabId)}if(mod&&e.shiftKey&&k==='l'){e.preventDefault();window.showView('reading')}});
+document.querySelectorAll('a[target="_blank"]').forEach(a=>{const rel=new Set((a.rel||'').split(/\s+/).filter(Boolean));rel.add('noopener');rel.add('noreferrer');a.rel=[...rel].join(' ')});
+const install=$('installBtn');if(install){install.title='Install Open Browser as an app on this device';install.setAttribute('aria-label','Install Open Browser')}
+const input=$('addressInput');if(input){input.setAttribute('spellcheck','false');input.setAttribute('autocapitalize','off')}
+window.addEventListener('storage',e=>{if(e.key==='openBrowserTheme'&&e.newValue)document.documentElement.dataset.theme=e.newValue});
+})();
 </script>
 </body>
 </html>
